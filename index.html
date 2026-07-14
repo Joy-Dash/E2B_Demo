@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>E2B｜互動原型</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="light">
+<div class="theme-switcher" role="group" aria-label="UI 配色切換">
+  <button type="button" id="lightThemeBtn" onclick="setThemeMode('light')">☀ 淺色</button>
+  <button type="button" id="darkThemeBtn" onclick="setThemeMode('dark')">☾ 深色</button>
+</div>
+
+<section id="loginView" class="login"><div class="login-card"><div class="login-hero"><div class="mark">✦</div><h1>E2B<br>E-commerce to Business</h1><p>把電商資料、AI 內容、營運洞察裝進同一座控制塔。登入後直接進入 AI 核心與數據中心。</p><div class="hero-pills"><span>AI 資料中樞</span><span>營運分析</span><span>跨平台串接</span></div></div><div class="login-form"><form id="loginForm" class="auth-panel active"><h2>企業登入</h2><p>展示原型：不用輸入帳號密碼，點擊登入即可前往預設首頁。</p><div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="demo@e2b.ai"></div><div class="field"><label>密碼</label><div class="password-wrap"><input id="loginPassword" type="password" placeholder="••••••••"><button class="eye-btn" type="button" onclick="togglePassword('loginPassword',this)">👁</button></div></div><div class="auth-row"><span class="hint" style="margin:0;text-align:left">Demo 可直接登入</span><button class="link-btn" type="button" onclick="showAuthPanel('forgotPanel')">忘記密碼？</button></div><button class="submit" type="submit">登入</button></form><form id="forgotPanel" class="auth-panel"><button class="auth-back" type="button" onclick="showAuthPanel('loginForm')">← 返回登入</button><h2>重新設定密碼</h2><p>請輸入您的 Email，我們將寄送六位數驗證碼至您的信箱。</p><div class="field"><label>Email</label><input id="resetEmail" type="email" placeholder="demo@e2b.ai"></div><button class="submit" type="button" onclick="sendResetCode()">寄送驗證碼</button><div class="auth-note">Demo 驗證碼固定為 <b>123456</b>，方便展示流程。</div></form><form id="verifyPanel" class="auth-panel"><h2>輸入驗證碼</h2><p>請輸入驗證信中的六位數驗證碼。</p><div class="mail-chip reset-mail"><div class="mail-chip-main"><small>驗證碼已寄送至</small><b id="verifyEmailText">demo@e2b.ai</b></div><button class="link-btn" type="button" onclick="editResetEmail()">修改 Email</button></div><div class="field"><label>驗證碼</label><div class="code-inputs" id="codeInputs"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"></div></div><div class="auth-row"><span class="hint" id="codeCountdown" style="margin:0;text-align:left">可重新寄送</span><button class="link-btn" id="resendCodeBtn" type="button" onclick="sendResetCode(true)">重新寄送驗證碼</button></div><button class="submit" type="button" onclick="verifyResetCode()">下一步</button></form><form id="newPasswordPanel" class="auth-panel"><h2>設定新密碼</h2><p>輸入新密碼後，即可完成密碼更新。</p><div class="field"><label>新密碼</label><div class="password-wrap"><input id="newPassword" type="password" placeholder="至少 8 碼"><button class="eye-btn" type="button" onclick="togglePassword('newPassword',this)">👁</button></div></div><div class="field"><label>再次輸入新密碼</label><div class="password-wrap"><input id="confirmPassword" type="password" placeholder="請再次輸入"><button class="eye-btn" type="button" onclick="togglePassword('confirmPassword',this)">👁</button></div></div><div class="password-rules"><span id="ruleLength">✓ 至少 8 碼</span><span id="ruleCase">✓ 英文大小寫</span><span id="ruleNumber">✓ 至少 1 個數字</span></div><button class="submit" type="button" onclick="updatePasswordDemo()">更新密碼</button></form><div id="resetDonePanel" class="auth-panel"><div class="success-mark">✓</div><h2>密碼已更新</h2><p>您的密碼已成功修改，請重新登入。</p><button class="submit" type="button" onclick="showAuthPanel('loginForm')">返回登入</button></div></div></div></section>
+<section id="appView" class="hidden"><div class="app"><aside class="sidebar"><div class="brand"><div class="logo">✦</div><div><strong>E2B</strong><br><span>E-commerce to Business</span></div></div><div class="nav-title">工作區</div><a href="#" class="nav-item active" id="navData">🧠 AI 核心與數據中心</a><a href="#" class="nav-item" id="navOps">📦 營運分析模組</a><div class="subnav" id="opsSub"><a href="#" class="subnav-item" data-page="products">商品管理中心</a><a href="#" class="subnav-item" data-page="customers">客戶與客群管理</a><a href="#" class="subnav-item" data-page="ads">廣告效益分析</a><a href="#" class="subnav-item" data-page="social">社群影音分析</a></div><a href="#" class="nav-item" id="navCreative">🎨 創意與文案中心</a><div class="subnav" id="creativeSub"><a href="#" class="subnav-item" data-creative="product">商品內容</a><a href="#" class="subnav-item" data-creative="ad">廣告素材</a><a href="#" class="subnav-item" data-creative="social">社群內容</a><a href="#" class="subnav-item" data-creative="asset">圖片創作</a></div><a href="#" class="nav-item" id="navAsset">🗂️ 資產庫模組</a><div class="subnav" id="assetSub"><a href="#" class="subnav-item" data-asset-page="contentLibrary">內容資產庫</a><a href="#" class="subnav-item" data-asset-page="mediaLibrary">素材庫</a></div><a href="#" class="nav-item" id="navGlobal">🧭 全域洞察與決策中心</a><div class="profile" id="accountProfile"><span class="avatar">E2B</span><div><b>E2B Demo Account</b><p>demo@e2b.ai</p></div><div class="account-menu" id="accountMenu"><button type="button" onclick="logoutDemo(event)">登出</button></div></div></aside><main><div id="dataPage"></div><div id="opsPage" class="hidden"></div></main></div></section>
+<div class="usage-modal" id="usageModal"><div class="usage-dialog"><button class="usage-close" onclick="closeUsage()">×</button><h2>✦ AI 點數使用紀錄</h2><div class="usage-summary"><div><span>本月總額度</span><b>300</b><small> 點</small></div><div><span>已使用</span><b style="color:#4359f3">125</b><small> 點</small></div><div><span>剩餘</span><b style="color:#12b76a">175</b><small> 點</small></div><div><span>使用率</span><b>41.7%</b></div><div class="usage-bar"><i style="width:41.7%"></i></div></div><div class="range-row"><button>今天</button><button>最近 7 天</button><button class="active">最近 30 天</button><button>本月</button><button>上個月</button><button>自訂</button><button style="margin-left:auto">⇩ 匯出 Excel</button></div><div class="table-card"><table><thead><tr><th>日期時間</th><th>功能類型</th><th>使用內容</th><th>消耗點數</th></tr></thead><tbody><tr><td>2026-06-16 09:35</td><td><span class="tag">AI文案</span></td><td>商品描述產生－春季新品上架文</td><td>5 點</td></tr><tr><td>2026-06-16 09:10</td><td><span class="tag">AI圖片</span></td><td>商品情境圖－戶外野餐主題</td><td>20 點</td></tr><tr><td>2026-06-15 18:22</td><td><span class="tag">AI分析</span></td><td>客群分群洞察報告</td><td>8 點</td></tr></tbody></table></div></div></div>
+<div class="modal-overlay" id="segmentModal"><div class="dialog"><button class="close-x" onclick="closeSegmentModal()">×</button><div id="segmentModalContent"></div></div></div>
+<div class="product-modal" id="productModal"><div class="product-dialog"><button class="close-x" onclick="closeProductModal()">×</button><div id="productModalContent"></div></div></div>
+
+<div class="modal-overlay" id="assetLibraryModal"><div class="asset-library-dialog"><button class="close-x" onclick="closeAssetLibrary()">×</button><h2>從素材庫選取圖片</h2><p class="muted">選擇要引用到目前文案或素材生成的圖片，原型中可多次選取。</p><div class="asset-library-grid" id="assetLibraryGrid"></div></div></div>
+
+<div class="drawer" id="uploadDrawer">
+  <button class="close-x" onclick="closeUploadDrawer()">×</button>
+  <h2>上傳資料檔案</h2>
+  <p class="muted">從電腦選擇檔案後，AI 會將資料加入數據中心並進行解析。</p>
+  <div class="upload-reference" style="margin:18px 0">
+    <input type="file" id="localUploadInput" multiple accept=".xlsx,.xls,.csv,.pdf,.doc,.docx" onchange="handleLocalUpload(event)">
+    <div class="upload-preview" id="localUploadPreview"><span>支援 Excel、CSV、PDF、Word，可一次選擇多個檔案。</span></div>
+  </div>
+  <label style="display:block;font-weight:900;margin:14px 0 8px">資料類型</label>
+  <select class="filter" style="width:100%;height:44px">
+    <option>商品知識</option>
+    <option>品牌知識</option>
+    <option>營運資料</option>
+    <option>廣告資料</option>
+    <option>社群內容</option>
+    <option>其他文件</option>
+  </select>
+  <label style="display:block;font-weight:900;margin:14px 0 8px">備註</label>
+  <textarea class="search" style="width:100%;min-width:0;height:92px;padding:12px 14px" placeholder="可補充這份資料的用途，例如：作為商品分析、競品比較或品牌知識來源。"></textarea>
+  <button class="btn primary" style="width:100%;height:46px;margin-top:18px" onclick="finishLocalUpload()">開始上傳並解析</button>
+</div>
+
+<div class="toast" id="toast">已完成</div>
+<script src="js/app.js"></script>
+</body>
+</html>
