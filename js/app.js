@@ -1,4 +1,4 @@
-﻿
+
 const $=s=>document.querySelector(s);const $$=s=>document.querySelectorAll(s);function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800)}
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');renderData();toast('已進入 AI 核心與數據中心')});
 let resetTimer=null,resetSeconds=0;
@@ -34,11 +34,14 @@ function activeNav(page){
     $('#navAsset').classList.add('active');
     $('#assetSub').classList.add('show');
     document.querySelector(`[data-asset-page="${page}"]`)?.classList.add('active');
+  } else if(page==='market'){
+    $('#navMarket')?.classList.add('active');
   } else if(page==='global'){
     $('#navGlobal')?.classList.add('active');
   }
 }
 $('#navData').onclick=e=>{e.preventDefault();$('#dataPage').classList.remove('hidden');$('#opsPage').classList.add('hidden');activeNav('data');renderData();toast('已切換到 AI 核心與數據中心')};
+$('#navMarket')?.addEventListener('click',e=>{e.preventDefault();renderMarketIntel()});
 $('#navOps').onclick=e=>{e.preventDefault(); if($('#opsSub').classList.contains('show') && $('#navOps').classList.contains('active')){closeAllSubnavs();return;} renderOps('products')};
 $('#navCreative').onclick=e=>{e.preventDefault(); if($('#creativeSub').classList.contains('show') && $('#navCreative').classList.contains('active')){closeAllSubnavs();return;} renderCreative('product')};
 $$('[data-page]').forEach(a=>a.onclick=e=>{e.preventDefault();renderOps(a.dataset.page)});
@@ -51,6 +54,12 @@ function renderData(){activeNav('data');$('#dataPage').innerHTML=`<div class="to
 function bindDataTabs(){$$('.workspace-tabs .tab').forEach(t=>t.onclick=()=>{$$('.workspace-tabs .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');renderDataWork(t.dataset.tab)})}
 function renderDataWork(tab){const w=$('#dataWork'); if(tab==='file')w.innerHTML=`<div class="workspace-panel active"><div class="inline-upload-card"><div class="upload-zone inline-drop" id="dataDropZone" onclick="document.getElementById('dataFileInput')?.click()" ondragover="event.preventDefault();this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="handleDataDrop(event)"><input type="file" id="dataFileInput" class="hidden" multiple accept=".xlsx,.xls,.csv,.pdf,.doc,.docx" onchange="handleDataFileUpload(event)"><div style="font-size:38px">☁️</div><h2>批次新增資料來源</h2><p class="muted">可重複瀏覽並加入多個檔案，選完後會顯示在右側清單。</p><button class="btn primary" type="button" onclick="event.stopPropagation();document.getElementById('dataFileInput')?.click()">瀏覽電腦檔案</button></div><div class="inline-upload-form"><p class="file-list-title">已瀏覽檔案清單</p><p class="file-list-help">請逐筆選擇資料類型。資料類型預設為空白，未選擇類型的檔案不能進行解析；解析前可移除已瀏覽檔案。</p><div class="file-source-list" id="dataUploadPreview"><div class="file-source-empty">尚未選擇任何檔案</div></div><button class="btn primary inline-submit" type="button" onclick="finishDataUpload()">開始上傳並解析</button></div></div></div>`; if(tab==='cloud')w.innerHTML=`<div class="workspace-panel active"><div class="cloud-grid"><div class="connect-card"><h3>☁️ Google Drive 串接</h3><div class="drive-box"><div class="round-icon">L</div><div><b>已連線</b><p class="muted">demo@e2b.ai</p></div><button class="link-danger" onclick="toast('已中斷連線')">中斷連結</button></div></div><div class="connect-card"><h3>🔗 相關網址</h3><div class="url-add"><input id="urlInput" placeholder="請輸入官網或部落格網址（https://...）"><button class="btn primary" onclick="addUrl()">＋ 新增網址</button></div><div id="urlTags"><span class="url-chip">🌐 https://my-shop.com <button>×</button></span><span class="url-chip">🌐 https://blog.my-shop.com/news <button>×</button></span></div><div class="crawl-box"><b>AI 擷取設定</b><label><input type="checkbox" checked> 商品頁</label><label><input type="checkbox" checked> 部落格</label><label><input type="checkbox" checked> FAQ</label></div></div></div></div>`; if(tab==='ads')w.innerHTML=`<div class="workspace-panel active"><div class="platform-grid">${['Meta Ads|已連線|2 小時前|Me','Google Ads|已連線|30 分鐘前|Go','TikTok Ads|未連線|—|Ti','LINE Ads|未連線|—|LI','蝦皮廣告|已連線|1 小時前|蝦皮','Momo 商城|未連線|—|Mo'].map(x=>{let [n,s,t,l]=x.split('|');let on=s==='已連線';return `<div class="platform-card"><span class="platform-badge pill ${on?'green':'blue'}">${on?'● 已連線':'○ 未連線'}</span><div class="platform-logo">${l}</div><h3>${n}</h3><p class="muted">最後同步：${t}</p><button class="btn ${on?'':'primary'}" onclick="toast('${on?'已開啟管理連線':'已開啟串接流程'}')">${on?'管理串接':'點擊連線'}</button></div>`}).join('')}</div></div>`}
 function addUrl(){let v=$('#urlInput')?.value.trim(); if(!v)return toast('請先輸入網址'); $('#urlTags').insertAdjacentHTML('beforeend',`<span class="url-chip">🌐 ${v} <button onclick="this.parentElement.remove()">×</button></span>`);$('#urlInput').value='';toast('已新增網址來源')}function openUsage(){$('#usageModal').classList.add('show')}function closeUsage(){$('#usageModal').classList.remove('show')}
+function renderMarketIntel(){
+  activeNav('market');$('#dataPage').classList.add('hidden');$('#opsPage').classList.remove('hidden');
+  const competitors=[['UrbanStep','https://urbanstep.example.com','品牌定位、商品頁、價格帶','已完成','相似度 82%'],['Daily Walk','https://dailywalk.example.com/product/sneaker','指定商品頁','分析中','相似度 71%'],['Mode Shoes','https://modeshoes.example.com','官網與活動頁','待更新','相似度 64%']];
+  $('#opsPage').innerHTML=`<div class="topbar"><div><div class="breadcrumb">工作區 / 市場與競品情報</div><h1>市場 / 競品情報</h1><p class="subtitle">新增競爭對手網站與指定競品頁，建立可供 AI 分析品牌定位、商品賣點與市場差異的情報來源。</p></div><div class="actions"><button class="btn" onclick="toast('已同步競品資料')">同步資料</button><button class="btn primary" onclick="toast('已產生競品分析摘要')">生成 AI 分析</button></div></div><section class="metrics"><div class="card"><h3>追蹤競品</h3><div class="big">3</div><div class="muted">品牌網站與指定商品頁</div></div><div class="card"><h3>本週價格變動</h3><div class="big">12</div><div class="muted">偵測到促銷與售價調整</div></div><div class="card"><h3>內容差異機會</h3><div class="big">7</div><div class="muted">商品頁、SEO、社群切角</div></div><div class="card"><h3>資料新鮮度</h3><div class="big">2 小時前</div><div class="muted">下次同步：18:00</div></div></section><section class="creative-layout market-layout"><div class="creative-panel creative-left"><div class="creative-form"><h3>新增競品來源</h3><div class="flow-block"><span class="flow-step">STEP 1</span><label>競品品牌 / 網站名稱</label><input placeholder="例如：UrbanStep"><label>競品網站或指定分析頁 URL</label><input placeholder="https://competitor.com/product/example"><label>分析範圍</label><div class="content-picks"><button class="pick active" onclick="togglePick(this)">品牌定位</button><button class="pick active" onclick="togglePick(this)">商品賣點</button><button class="pick active" onclick="togglePick(this)">價格帶</button><button class="pick" onclick="togglePick(this)">SEO / 關鍵字</button><button class="pick" onclick="togglePick(this)">活動促銷</button><button class="pick" onclick="togglePick(this)">社群內容</button></div><button class="btn primary" style="height:48px;margin-top:14px" onclick="toast('已新增競品來源並開始解析')">新增並解析</button></div><div class="flow-block"><span class="flow-step">STEP 2</span><h3 style="margin:10px 0 4px">AI 競品分析方向</h3><p class="mini-hint">分析結果會同步提供給全域洞察與商品 / 廣告 / 社群內容建議使用。</p><div class="insight-list"><div class="insight"><span class="insight-dot"></span><div><b>品牌定位比較</b><p class="muted">找出我方與競品的語氣、主張與視覺差異。</p></div></div><div class="insight"><span class="insight-dot"></span><div><b>商品頁差異</b><p class="muted">比較標題、賣點、規格、FAQ 與促購段落。</p></div></div><div class="insight"><span class="insight-dot"></span><div><b>市場機會建議</b><p class="muted">整理可切入的內容角度、價格策略與活動主張。</p></div></div></div></div></div></div><div class="creative-result"><div class="social-workspace-head"><div><h2 style="margin:0 0 6px">競品追蹤清單</h2><p class="muted" style="margin:0">管理競爭對手網站、指定商品頁與分析狀態。</p></div><button class="btn" onclick="toast('已重新整理競品清單')">重新整理</button></div><div class="market-card-grid">${competitors.map(c=>`<div class="result-card market-card"><div class="market-card-head"><span class="tag">${c[0]}</span><span class="pill ${c[3]==='已完成'?'green':c[3]==='分析中'?'amber':'blue'}">● ${c[3]}</span></div><h3>${c[1]}</h3><p class="muted">${c[2]}</p><div class="impact-grid" style="grid-template-columns:1fr 1fr"><div class="impact-mini"><span>競品相似度</span><b>${c[4]}</b></div><div class="impact-mini"><span>更新狀態</span><b>${c[3]}</b></div></div><div class="result-actions"><button class="btn" onclick="toast('已開啟競品摘要')">查看摘要</button><button class="btn" onclick="toast('已加入全域洞察比較')">加入比較</button></div></div>`).join('')}</div><section class="ad-alert" style="margin-top:18px"><h3>✦ AI 初步競品洞察</h3><ul><li><b>UrbanStep</b> 商品頁更強調「全天候舒適」，我方可補強通勤與久站場景。</li><li><b>Daily Walk</b> 近期主推滿額免運與組合包，建議比較同品類價格帶。</li><li><b>Mode Shoes</b> 社群視覺偏精品感，我方可用生活感與真實穿搭做差異化。</li></ul></section></div></section>`;
+  toast('已切換到 市場 / 競品情報');
+}
 const products=[{id:'P001-SHOPEE',name:'極簡白底老爹鞋',cat:'鞋類',price:'NT$ 690',stock:38,sales:198,platform:'蝦皮',health:66,status:'即將缺貨',spec:'尺碼 22-27 / 全白配色',image:'🖼<br>蝦皮主圖',desc:'蝦皮賣場商品，與其他平台商品暫不整併。',aiTitle:'✦ AI 文案優化建議（蝦皮）',aiDesc:'建議在標題加入「免運、厚底 4cm、日常百搭」等高搜尋字，描述中可強調舒適度與通勤情境。',aiEstimate:'預估可提升轉換率 12-18%。'},
 {id:'P001-MOMO',name:'極簡白底老爹鞋｜韓系厚底休閒鞋',cat:'鞋類',price:'NT$ 720',stock:82,sales:142,platform:'Momo',health:74,status:'健康',spec:'尺碼 22-27 / 白色',image:'🖼<br>Momo主圖',desc:'Momo 商城商品，與其他平台商品暫不整併。',aiTitle:'✦ AI 文案優化建議（Momo）',aiDesc:'建議強化商品特色條列、材質與尺寸說明，並補上通勤、旅遊、日常穿搭等使用情境。',aiEstimate:'預估可提升點擊率 8-14%。'},
 {id:'P001-WEB',name:'極簡白底老爹鞋',cat:'鞋類',price:'NT$ 690',stock:56,sales:72,platform:'官網',health:70,status:'健康',spec:'尺碼 22-27 / 品牌官網款',image:'🖼<br>官網主圖',desc:'官網商品，與其他平台商品暫不整併。',aiTitle:'✦ AI 文案優化建議（官網）',aiDesc:'建議加入品牌故事、穿搭情境與會員優惠引導，讓官網內容比平台頁更有品牌感。',aiEstimate:'預估可提升會員轉換率 6-10%。'},
@@ -161,6 +170,20 @@ function selectVisualStyle(btn,name){document.querySelectorAll('.visual-style-ch
 function selectImageReference(btn){document.querySelectorAll('.image-ref-card').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')}
 function generateImageCreationWorkspace(){const r=document.getElementById('creativeResult');if(!r)return;const use=document.getElementById('imageUseSelect')?.value||'活動 Banner';const style=document.getElementById('visualStyleValue')?.value||'生活感';const sizes=document.getElementById('imageSizeSelect')?.value||'依圖片用途自動建議尺寸';r.innerHTML=`<div class="image-workspace"><div class="product-workspace-head"><div><h2>圖片工作區</h2><p class="muted">已依「${use}」與「${style}」產生 4 個方向，可儲存、微調或重新生成。</p></div><button class="btn primary" onclick="generateImageCreationWorkspace()">重新生成全部</button></div><div class="image-version-grid">${['A','B','C','D'].map((v,i)=>`<div class="image-version-card"><div class="image-version-preview">${v}<br><span>${use}<br>${sizes}</span></div><div class="asset-meta"><b>方案 ${v}</b><span>${style}｜${i%2?'版面留白':'主視覺強化'}</span></div><div class="image-card-actions">${imageBlockActions()}</div></div>`).join('')}</div></div>`}
 
+function productImageReferenceBlock(){
+  return `<label>商品相關圖片（可多選）</label><p class="mini-hint">可重新上傳商品圖片，也可以從素材庫選擇既有圖片。AI 會參考商品外觀、顏色、材質、細節與構圖；若只是風格參考，請在圖片標籤中註明。</p><div class="product-image-ref"><input id="productImageUploadInput" class="hidden" type="file" accept="image/*" multiple onchange="handleProductImageUpload(event)"><div class="product-image-empty" id="productImageEmpty">尚未選擇商品相關圖片</div><div class="product-image-list" id="selectedProductImages"></div><div class="product-image-actions"><button class="btn" type="button" onclick="document.getElementById('productImageUploadInput')?.click()">＋ 上傳商品圖片</button><button class="btn" type="button" onclick="openAssetLibrary('product-image')">從素材庫選擇</button></div><p class="mini-hint">建議至少提供商品主圖；可再補充細節圖、包裝圖、情境圖或風格參考。</p></div>`;
+}
+function productKnowledgeBlock(){
+  return `<div class="product-knowledge-ref"><b>本次 AI 會自動引用 E2B 已保存的企業認知</b><div><span>✓ 品牌定位與故事</span><span>✓ 品牌語氣與視覺規範</span><span>✓ 商品型錄與規格</span></div></div>`;
+}
+function addProductImageChip(label,meta,emoji='🖼'){
+  const list=document.getElementById('selectedProductImages');const empty=document.getElementById('productImageEmpty');if(!list)return;
+  if(empty)empty.style.display='none';
+  list.insertAdjacentHTML('beforeend',`<div class="product-image-chip"><div class="product-image-thumb">${emoji}</div><div><b>${escapeHtml(label)}</b><select><option>商品主圖</option><option>外觀角度</option><option>細節 / 材質</option><option>包裝 / 配件</option><option>使用情境</option><option>風格參考</option></select><span>${escapeHtml(meta||'商品相關圖片')}</span></div><button type="button" onclick="this.closest('.product-image-chip').remove();syncProductImageEmpty()">×</button></div>`);
+}
+function syncProductImageEmpty(){const empty=document.getElementById('productImageEmpty');const list=document.getElementById('selectedProductImages');if(empty&&list)empty.style.display=list.children.length?'none':'block'}
+function handleProductImageUpload(event){Array.from(event.target.files||[]).forEach(file=>addProductImageChip(file.name,'重新上傳圖片','＋'));event.target.value='';toast('已加入商品相關圖片')}
+
 function renderCreativeForm(){const type=window.creativeType||'product', mode=window.creativeMode||'new', c=creativeConfigs[type];let html='';if(type==='asset'){
   html=`<div class="creative-form image-creation-flow"><h3>建立圖片創作</h3>
   <div class="flow-block image-compact-block"><span class="flow-step">STEP 1</span><h3 style="margin:10px 0 4px">選擇圖片用途</h3><p class="mini-hint">先選擇這張圖要用在哪裡，AI 會依用途調整構圖、文字留白與版面比例。</p><select id="imageUseSelect" class="image-compact-select" onchange="updateImageUseHint()">${['商品情境圖','活動 Banner','官網 Banner','社群貼文圖片','廣告素材','EDM / 電子報','LINE Rich Menu','其他'].map((p,i)=>`<option value="${p}" ${i===1?'selected':''}>${p}｜${imageUseHint(p)}</option>`).join('')}</select></div>
@@ -174,48 +197,46 @@ function renderCreativeForm(){const type=window.creativeType||'product', mode=wi
   return;
 }
 if(type==='product' && mode==='new'){
-  html=`<div class="creative-form product-ai-flow"><h3>建立全新商品內容</h3>
-  <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 1</span><h3 style="margin:10px 0 4px">輸入商品核心資料</h3><p class="mini-hint">先輸入 AI 需要理解商品的最小資料。平台先選，AI 才能同步判斷各平台分類與內容格式。</p></div></div>
+  html=`<div class="creative-form product-ai-flow"><h3>建立全新商品多圖</h3>
+  <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 1</span><h3 style="margin:10px 0 4px">輸入商品核心資料與圖片</h3><p class="mini-hint">先提供商品基本資料與商品相關圖片；E2B 會同時引用已保存的品牌認知，協助 AI 維持商品外觀與品牌一致性。</p></div></div>
+    ${productKnowledgeBlock()}
     <label>商品名稱</label><input id="creativeName" placeholder="例如：極簡白底老爹鞋">
     <label>品牌</label><input id="productBrand" placeholder="例如：E2B Select / Nike / 自有品牌">
     <label>商品特色描述</label><textarea id="creativeDesc" placeholder="可以貼一整段商品說明，AI 會幫你整理成特色 Tag 與規格欄位。例：白色厚底老爹鞋，透氣鞋面，EVA 軟底，適合通勤與日常穿搭，尺寸 22-27cm。"></textarea>
-    <label>內容輸出平台（可複選）</label><div class="platform-picks">${['momo','蝦皮','SHOPLINE','Shopify','Cyberbiz','meepShop'].map((p,i)=>`<button class="pick ${i<2?'active':''}" onclick="togglePick(this);resetProductParse()">${p}</button>`).join('')}</div>
+    ${productImageReferenceBlock()}
   </div>
-  <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 2</span><h3 style="margin:10px 0 4px">選擇商品資料建立方式</h3><p class="mini-hint">可以使用 AI 快速解析，也可以不消耗 AI 點數，先手動建立商品特色、規格與平台分類。</p></div></div>
+  <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 2</span><h3 style="margin:10px 0 4px">選擇商品資料建立方式</h3><p class="mini-hint">可以使用 AI 快速解析，也可以不消耗 AI 點數，先手動建立商品特色、規格與補充分類。</p></div></div>
     <div class="build-method-grid">
-      <div class="build-method-card ai-method"><div><span class="method-badge">推薦</span><h4>✦ AI 智慧解析</h4><p>AI 依商品名稱、品牌、描述與輸出平台，自動建立商品類型、特色 Tag、規格欄位與平台分類建議。</p></div><div class="method-foot"><span>消耗 <b>1 AI 點數</b></span><button class="btn primary" type="button" onclick="aiAnalyzeProduct()">使用 AI 解析</button></div></div>
-      <div class="build-method-card"><div><span class="method-badge free">0 點數</span><h4>✍ 手動建立</h4><p>不使用 AI 點數，由使用者自行新增商品特色、規格與各平台分類；後續生成商品內容時再使用 AI。</p></div><div class="method-foot"><span>不消耗 AI 點數</span><button class="btn" type="button" onclick="manualCreateProductData()">手動建立</button></div></div>
+      <div class="build-method-card ai-method"><div><span class="method-badge">推薦</span><h4>✦ AI 智慧解析</h4><p>AI 依商品名稱、品牌、描述與圖片，自動建立通用商品類型、特色 Tag 與規格欄位。</p></div><div class="method-foot"><span>消耗 <b>1 AI 點數</b></span><button class="btn primary" type="button" onclick="aiAnalyzeProduct()">使用 AI 解析</button></div></div>
+      <div class="build-method-card"><div><span class="method-badge free">0 點數</span><h4>✍ 手動建立</h4><p>不使用 AI 點數，由使用者自行新增商品特色、規格與補充分類；後續生成商品多圖時再使用 AI。</p></div><div class="method-foot"><span>不消耗 AI 點數</span><button class="btn" type="button" onclick="manualCreateProductData()">手動建立</button></div></div>
     </div>
     <div id="productParsedArea"><div class="empty-parse">尚未建立商品資料。請選擇「AI 智慧解析」或「手動建立」。</div></div>
   </div>
-  <div class="flow-block"><span class="flow-step">STEP 3</span><label>文案風格</label><div class="style-grid"><div class="style-card active" onclick="selectProductStyle(this,'極簡質感')"><b>極簡質感</b><p>範本：重新定義每天都想穿的白鞋。乾淨、俐落，保留品牌呼吸感。</p></div><div class="style-card" onclick="selectProductStyle(this,'專業可信')"><b>專業可信</b><p>範本：採用透氣鞋面與 EVA 軟底，兼顧支撐、舒適與日常耐穿度。</p></div><div class="style-card" onclick="selectProductStyle(this,'熱血促購')"><b>熱血促購</b><p>範本：限時優惠開跑！厚底顯高、百搭不挑人，今天下單直接穿出門。</p></div></div><input id="productCopyStyle" class="hidden" value="極簡質感">
-    <label>行銷重點</label><div class="goal-picks">${['新品上市','限時優惠','免運','官方直營','熱銷排行','滿額折','買一送一','季節限定'].map((p,i)=>`<button class="pick ${i<2?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div>
-    <label>AI 引用素材（選填）</label><p class="mini-hint">可從素材庫選擇一個或多個素材，AI 會參考素材的視覺風格、配色與版面配置，不會直接複製素材內容。</p><div class="asset-select-box product-asset-ref"><div class="selected-assets" id="selectedAssets"><span>尚未選擇素材</span></div><button class="btn" type="button" onclick="openAssetLibrary()">＋ 選擇引用素材</button></div>
-  </div>
-  <div class="flow-block"><span class="flow-step">STEP 4</span><label>建立商品內容（可複選）</label><div class="content-group-title">文字</div><div class="content-picks">${['商品標題','商品賣點','商品短描述','商品完整介紹','商品規格整理','FAQ','SEO Title','Meta Description','平台關鍵字'].map((p,i)=>`<button class="pick ${i<4?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div><div class="content-group-title">圖片</div><div class="content-picks image-content-picks"><button class="pick active" onclick="togglePick(this)">商品主圖（AI生成）</button><button class="pick" onclick="togglePick(this)">商品情境圖（V2）</button><button class="pick" onclick="togglePick(this)">商品 Banner（V2）</button></div>
-    <button class="btn primary" style="height:48px" onclick="generateCreative()">✦ AI 建立商品內容</button></div></div>`;
+  <input id="productCopyStyle" class="hidden" value="品牌預設">
+  <div class="flow-block"><span class="flow-step">STEP 3</span><label>生成商品圖片與輔助文案（可複選）</label><div class="content-group-title">商品圖片</div><div class="content-picks image-content-picks">${['商品主圖','商品特色圖','商品規格圖','商品情境圖','使用方法 / 流程圖','商品比較表','去背商品圖'].map((p,i)=>`<button class="pick ${i<4?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div><div class="content-group-title">輔助文案</div><div class="content-picks">${['圖片主標','圖片功能說明','商品頁短描述','SEO Title','Meta Description'].map((p,i)=>`<button class="pick ${i<3?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div>
+    <button class="btn primary" style="height:48px" onclick="generateCreative()">✦ AI 生成商品多圖</button></div></div>`;
   $('#creativeForm').innerHTML=html;
   return;
 }
 
 if(type==='product' && mode==='opt'){
   const productOptions=(typeof products!=='undefined'?products:[]).map((p,i)=>`<option value="${p.id}">${p.platform}｜${p.name}</option>`).join('');
-  html=`<div class="creative-form product-ai-flow"><h3>優化現有商品文案</h3>
+  html=`<div class="creative-form product-ai-flow"><h3>優化現有商品多圖</h3>
   <input id="creativeName" type="hidden" value="極簡白底老爹鞋"><input id="productBrand" type="hidden" value="Urban Walk"><textarea id="creativeDesc" class="hidden">現有商品文案待優化</textarea>
-  <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 1</span><h3 style="margin:10px 0 4px">選擇現有商品文案</h3><p class="mini-hint">從營運分析模組中的商品清單帶入既有商品文案。平台會跟著商品一起帶入，不需要另外選。</p></div></div>
+  <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 1</span><h3 style="margin:10px 0 4px">選擇現有商品與圖片</h3><p class="mini-hint">從營運分析模組帶入既有商品資料，並補充商品相關圖片，作為重製多張商品圖的主要依據。</p></div></div>
+    ${productKnowledgeBlock()}
     <label>現有商品</label><select id="existingProductSelect" onchange="renderExistingProductSource()">${productOptions}</select>
     <div id="existingSource" class="source-card"></div>
+    ${productImageReferenceBlock()}
   </div>
   <div class="flow-block"><div class="flow-head"><div><span class="flow-step">STEP 2</span><h3 style="margin:10px 0 4px">確認與補充商品內容</h3><p class="mini-hint">AI 會先帶入目前商品名稱、特色與規格。使用者可以微調後，再產生新的優化版本。</p></div></div>
     <label>商品特色 Tag</label><div class="feature-tags" id="existingFeatureTags"><span class="feature-tag">厚底顯高 4cm <button onclick="this.parentElement.remove()">×</button></span><span class="feature-tag">透氣不悶腳 <button onclick="this.parentElement.remove()">×</button></span><span class="feature-tag">日常百搭 <button onclick="this.parentElement.remove()">×</button></span><button class="feature-add" onclick="addExistingFeatureTag()">＋新增特色</button></div>
     <label>商品規格</label><div class="existing-spec-list" id="existingSpecList"></div><button class="btn" type="button" onclick="addExistingSpecRow()">＋ 新增規格</button>
   </div>
-  <div class="flow-block"><span class="flow-step">STEP 3</span>
-    <label>文案風格</label><div class="style-grid"><div class="style-card active" onclick="selectProductStyle(this,'依原平台最佳化')"><b>依原平台最佳化</b><p>範本：保留原有賣點，改成更符合該平台閱讀與上架格式的版本。</p></div><div class="style-card" onclick="selectProductStyle(this,'極簡質感')"><b>極簡質感</b><p>範本：減少促銷感，讓商品回到品牌感與生活情境。</p></div><div class="style-card" onclick="selectProductStyle(this,'熱血促購')"><b>熱血促購</b><p>範本：加強優惠、稀缺感與 CTA，適合活動檔期。</p></div></div><input id="productCopyStyle" class="hidden" value="依原平台最佳化">
-    <label>想優化哪些內容（可複選）</label><div class="content-picks">${['商品標題','商品賣點','商品短描述','商品完整介紹','商品規格整理','FAQ','SEO Title','Meta Description','平台關鍵字'].map((p,i)=>`<button class="pick ${i<5?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div>
-    <label>圖片</label><div class="content-picks image-content-picks"><button class="pick" onclick="togglePick(this)">商品主圖（AI生成）</button><button class="pick" onclick="togglePick(this)">商品情境圖（V2）</button><button class="pick" onclick="togglePick(this)">商品 Banner（V2）</button></div>
-    <label>AI 引用素材（選填）</label><p class="mini-hint">可從素材庫選擇一個或多個素材，AI 會參考素材的視覺風格、配色與版面配置，不會直接複製素材內容。</p><div class="asset-select-box product-asset-ref"><div class="selected-assets" id="selectedAssets"><span>尚未選擇素材</span></div><button class="btn" type="button" onclick="openAssetLibrary()">＋ 選擇引用素材</button></div>
-    <button class="btn primary" style="height:48px" onclick="generateCreative()">✦ AI調整商品文案</button></div></div>`;
+  <div class="flow-block"><span class="flow-step">STEP 3</span><input id="productCopyStyle" class="hidden" value="品牌預設">
+    <label>想優化哪些輔助文案（可複選）</label><div class="content-picks">${['圖片主標','圖片功能說明','商品頁短描述','SEO Title','Meta Description'].map((p,i)=>`<button class="pick ${i<3?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div>
+    <label>想生成或重製哪些商品圖片</label><div class="content-picks image-content-picks">${['商品主圖','商品特色圖','商品規格圖','商品情境圖','使用方法 / 流程圖','商品比較表','去背商品圖'].map((p,i)=>`<button class="pick ${i<3?'active':''}" onclick="togglePick(this)">${p}</button>`).join('')}</div>
+    <button class="btn primary" style="height:48px" onclick="generateCreative()">✦ AI 重製商品多圖</button></div></div>`;
   $('#creativeForm').innerHTML=html;
   renderExistingProductSource();
   return;
@@ -237,13 +258,13 @@ function analyzeExistingProductCopy(){const p=getExistingSelectedProduct();if(!p
 function getDemoProductParsed(){return {type:'鞋類 / 厚底休閒鞋',features:['厚底顯高','透氣鞋面','EVA 軟底','日常百搭','通勤友善'],specs:[['尺寸','22-27cm'],['顏色','白 / 杏 / 黑'],['材質','透氣帆布、EVA 軟底'],['鞋底高度','約 4cm'],['適用情境','通勤、散步、週末穿搭']],categories:{'momo':'流行鞋包 > 女鞋 > 休閒鞋 / 厚底鞋','蝦皮':'女鞋 > 休閒鞋 > 老爹鞋','SHOPLINE':'Product Type：Shoes；Collection：Daily Sneakers','Shopify':'Product Type：Shoes；Tags：sneakers, platform shoes, daily wear','Cyberbiz':'鞋包配件 > 女鞋 > 休閒鞋','meepShop':'商品分類：鞋款 / 休閒鞋'}}}
 function resetProductParse(){window.productParsedData=null;window.productDataMethod=null;const area=document.getElementById('productParsedArea');if(area)area.innerHTML='<div class="empty-parse">平台已更新，請重新選擇「AI 智慧解析」或「手動建立」。</div>'}
 function aiAnalyzeProduct(silent=false){const name=(document.getElementById('creativeName')?.value||'極簡白底老爹鞋').trim();const desc=(document.getElementById('creativeDesc')?.value||'白色厚底老爹鞋，透氣鞋面，EVA 軟底，適合通勤與日常穿搭，尺寸 22-27cm。').trim();const platforms=selectedPicks('.platform-picks');const isShoe=/鞋|sneaker|老爹|厚底|靴/i.test(name+desc);const isBottle=/瓶|保溫|杯|水壺/i.test(name+desc);let data=getDemoProductParsed();if(isBottle){data={type:'生活用品 / 保溫瓶',features:['長效保溫保冷','極簡外型','不鏽鋼內膽','外出攜帶','日常辦公'],specs:[['容量','500ml'],['顏色','白 / 黑 / 奶茶色'],['材質','304 不鏽鋼'],['保溫時間','約 8-12 小時'],['適用情境','辦公、通勤、戶外']],categories:{'momo':'餐廚用品 > 保溫瓶 / 隨行杯','蝦皮':'居家生活 > 水壺 / 保溫瓶','SHOPLINE':'Product Type：Bottle；Collection：Daily Goods','Shopify':'Product Type：Drinkware；Tags：bottle, insulated, daily','Cyberbiz':'居家生活 > 餐廚用品','meepShop':'商品分類：生活用品 / 保溫瓶'}}}else if(!isShoe){data={type:'一般商品 / 生活選物',features:['日常實用','質感設計','送禮適合','簡約百搭','高 CP 值'],specs:[['品名',name],['品牌','依輸入品牌'],['材質','依商品描述補充'],['尺寸','待補充'],['適用情境','日常使用、送禮']],categories:{'momo':'生活用品 > 日用百貨','蝦皮':'居家生活 > 其他生活用品','SHOPLINE':'Product Type：Lifestyle Goods','Shopify':'Product Type：Lifestyle Goods；Tags：daily, gift','Cyberbiz':'生活用品 > 其他','meepShop':'商品分類：生活選物'}}}
-window.productParsedData=data;window.productDataMethod='ai';renderProductParsedFields(data,platforms.length?platforms:['momo','蝦皮']);if(!silent)toast('AI 已解析商品特色、規格與平台分類，已消耗 1 AI 點數')}
+window.productParsedData=data;window.productDataMethod='ai';renderProductParsedFields(data,platforms.length?platforms:['通用分類']);if(!silent)toast('AI 已解析商品特色與規格，已消耗 1 AI 點數')}
 
 function manualCreateProductData(silent=false){
   const name=(document.getElementById('creativeName')?.value||'').trim()||'商品名稱';
   const brand=(document.getElementById('productBrand')?.value||'').trim()||'品牌名稱';
   const platforms=selectedPicks('.platform-picks');
-  const list=platforms.length?platforms:['momo','蝦皮'];
+  const list=platforms.length?platforms:['通用分類'];
   const data={type:'待填寫商品類型',features:[],specs:[['商品名稱',name],['品牌',brand],['尺寸',''],['顏色',''],['材質','']],categories:{}};
   list.forEach(p=>data.categories[p]='');
   window.productParsedData=data;
@@ -253,7 +274,7 @@ function manualCreateProductData(silent=false){
 }
 function renderManualProductFields(data,platforms){
   const area=document.getElementById('productParsedArea');if(!area)return;
-  area.innerHTML=`<div class="manual-status-card"><div><b>手動建立模式</b><p class="mini-hint" style="margin:4px 0 0">請自行補充商品類型、特色 Tag、規格與平台分類。這個步驟不消耗 AI 點數。</p></div><span class="pill blue">0 AI 點數</span></div><div class="parse-grid"><div class="parse-card"><h4>商品類型</h4><input id="manualProductType" value="${escapeHtml(data.type||'')}" placeholder="例如：鞋類 / 厚底休閒鞋"></div><div class="parse-card"><h4>商品特色 Tag</h4><div class="feature-tags" id="manualFeatureTags">${(data.features||[]).map(t=>`<span class="feature-tag">${escapeHtml(t)} <button onclick="this.parentElement.remove()">×</button></span>`).join('')}<button class="feature-add" onclick="addManualFeatureTag()">＋新增特色</button></div></div><div class="parse-card"><h4>商品規格欄位</h4><div class="existing-spec-list" id="manualSpecList">${(data.specs||[]).map(([k,v])=>`<div class="spec-row"><input value="${escapeHtml(k)}" placeholder="規格名稱"><input value="${escapeHtml(v)}" placeholder="規格內容"><button onclick="this.parentElement.remove()">×</button></div>`).join('')}</div><button class="btn" type="button" onclick="addManualSpecRow()">＋ 新增規格</button></div><div class="parse-card"><h4>平台分類</h4><div class="manual-category-list" id="manualCategoryList">${platforms.map(p=>`<div class="manual-category-row" data-platform="${escapeHtml(p)}"><b>${escapeHtml(p)}</b><input value="${escapeHtml((data.categories&&data.categories[p])||'')}" placeholder="請輸入 ${escapeHtml(p)} 分類，例如：女鞋 > 休閒鞋"></div>`).join('')}</div></div></div>`;
+  area.innerHTML=`<div class="manual-status-card"><div><b>手動建立模式</b><p class="mini-hint" style="margin:4px 0 0">請自行補充商品類型、特色 Tag、規格與補充分類。這個步驟不消耗 AI 點數。</p></div><span class="pill blue">0 AI 點數</span></div><div class="parse-grid"><div class="parse-card"><h4>商品類型</h4><input id="manualProductType" value="${escapeHtml(data.type||'')}" placeholder="例如：鞋類 / 厚底休閒鞋"></div><div class="parse-card"><h4>商品特色 Tag</h4><div class="feature-tags" id="manualFeatureTags">${(data.features||[]).map(t=>`<span class="feature-tag">${escapeHtml(t)} <button onclick="this.parentElement.remove()">×</button></span>`).join('')}<button class="feature-add" onclick="addManualFeatureTag()">＋新增特色</button></div></div><div class="parse-card"><h4>商品規格欄位</h4><div class="existing-spec-list" id="manualSpecList">${(data.specs||[]).map(([k,v])=>`<div class="spec-row"><input value="${escapeHtml(k)}" placeholder="規格名稱"><input value="${escapeHtml(v)}" placeholder="規格內容"><button onclick="this.parentElement.remove()">×</button></div>`).join('')}</div><button class="btn" type="button" onclick="addManualSpecRow()">＋ 新增規格</button></div><div class="parse-card"><h4>商品補充分類</h4><div class="manual-category-list" id="manualCategoryList">${platforms.map(p=>`<div class="manual-category-row" data-platform="${escapeHtml(p)}"><b>${escapeHtml(p)}</b><input value="${escapeHtml((data.categories&&data.categories[p])||'')}" placeholder="例如：鞋類 / 厚底休閒鞋 / 通勤穿搭"></div>`).join('')}</div></div></div>`;
 }
 function addManualFeatureTag(){const box=document.getElementById('manualFeatureTags');if(!box)return;const btn=box.querySelector('.feature-add');btn.insertAdjacentHTML('beforebegin',`<span class="feature-tag">新特色 <button onclick="this.parentElement.remove()">×</button></span>`);toast('已新增特色 Tag')}
 function addManualSpecRow(){const box=document.getElementById('manualSpecList');if(!box)return;box.insertAdjacentHTML('beforeend',`<div class="spec-row"><input value="新規格" placeholder="規格名稱"><input value="" placeholder="規格內容"><button onclick="this.parentElement.remove()">×</button></div>`);toast('已新增規格')}
@@ -274,17 +295,16 @@ function newProductParsedFromForm(){
   }
   return null;
 }
-function renderProductParsedFields(data,platforms){const area=document.getElementById('productParsedArea');if(!area)return;area.innerHTML=`<div class="parse-grid"><div class="parse-card"><h4>商品類型判斷</h4><b>${data.type}</b><p class="mini-hint">此類型會用來決定基本規格欄位與平台分類建議。</p></div><div class="parse-card"><h4>商品特色 Tag</h4><div class="tag-cloud">${data.features.map(x=>`<span contenteditable="true">${x}</span>`).join('')}<span contenteditable="true">＋新增特色</span></div></div><div class="parse-card"><h4>商品規格欄位</h4><div class="spec-list">${data.specs.map(([k,v])=>`<div class="spec-row"><b contenteditable="true">${k}</b><span contenteditable="true">${v}</span></div>`).join('')}</div></div><div class="parse-card"><h4>平台分類建議</h4><div class="platform-category-list">${platforms.map(p=>`<div class="platform-category"><b>${p}</b><br>${(data.categories&&data.categories[p])||'依平台商品樹產生建議分類'}</div>`).join('')}</div></div></div>`}
+function renderProductParsedFields(data,platforms){const area=document.getElementById('productParsedArea');if(!area)return;area.innerHTML=`<div class="parse-grid"><div class="parse-card"><h4>商品類型判斷</h4><b>${data.type}</b><p class="mini-hint">此類型會用來決定通用商品規格欄位與圖片內容方向。</p></div><div class="parse-card"><h4>商品特色 Tag</h4><div class="tag-cloud">${data.features.map(x=>`<span contenteditable="true">${x}</span>`).join('')}<span contenteditable="true">＋新增特色</span></div></div><div class="parse-card"><h4>商品規格欄位</h4><div class="spec-list">${data.specs.map(([k,v])=>`<div class="spec-row"><b contenteditable="true">${k}</b><span contenteditable="true">${v}</span></div>`).join('')}</div></div><div class="parse-card"><h4>商品補充分類</h4><div class="platform-category-list">${platforms.map(p=>`<div class="platform-category"><b>${p}</b><br>${(data.categories&&data.categories[p])||'通用商品類型 / 圖片內容分類'}</div>`).join('')}</div></div></div>`}
 function selectProductStyle(card,value){document.querySelectorAll('.style-card').forEach(x=>x.classList.remove('active'));card.classList.add('active');const input=document.getElementById('productCopyStyle');if(input)input.value=value;toast('已選擇文案風格：'+value)}
 function safeJs(v){return String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 function escapeHtml(v){return String(v).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 function platformTone(platform){if(platform.includes('蝦皮'))return {title:'厚底老爹鞋 女鞋 白鞋 百搭 透氣 厚底鞋',note:'偏搜尋關鍵字與促購語氣'};if(platform.toLowerCase().includes('momo'))return {title:'【熱銷推薦】極簡白底老爹鞋｜厚底4cm｜透氣不悶腳｜百搭休閒鞋',note:'偏完整規格、信任感與平台檢索'};if(platform.includes('SHOPLINE')||platform.includes('Shopify'))return {title:'重新定義每天都想穿的白鞋',note:'偏品牌感、情境敘事與 SEO'};return {title:'極簡白底老爹鞋｜厚底透氣・日常百搭',note:'通用平台版'} }
-function productPlatformResultHtml(platform,ctx,active){const tone=platformTone(platform);const category=(ctx.parsed.categories&&ctx.parsed.categories[platform])||'依平台商品樹產生建議分類';const includeImage=ctx.imageOutputs.some(x=>x.includes('商品主圖'));const blocks=[];if(includeImage){blocks.push(`<div class="product-result-block"><h3>🖼 商品主圖</h3><div class="main-image-preview">AI 商品主圖<br><span class="muted">${platform}｜1:1 電商主圖｜依 ${ctx.style} 風格生成</span></div><div class="block-toolbar"><button class="btn" onclick="toast('已重新生成')">重新生成</button><button class="btn" onclick="toast('已開啟圖片 Prompt 編輯')">AI調整</button></div></div>`)}
-const title=`${tone.title}`;blocks.push(`<div class="product-result-block"><h3>商品標題</h3><div class="editable-copy" contenteditable="true">${escapeHtml(title)}</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成商品標題')">重新生成</button></div></div>`)
-blocks.push(`<div class="product-result-block"><h3>商品短描述</h3><div class="editable-copy" contenteditable="true">以 ${ctx.brand} 的${ctx.style}語氣，為 ${ctx.name} 打造日常百搭的商品內容。${tone.note}，並結合「${ctx.marketing}」作為促購重點。</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成短描述')">重新生成</button></div></div>`)
-blocks.push(`<div class="product-result-block"><h3>商品完整介紹</h3><div class="editable-copy" contenteditable="true">${ctx.name} 專為日常通勤、週末散步與輕鬆穿搭設計。透過 ${ctx.parsed.features.slice(0,3).join('、')} 等特色，讓商品在 ${platform} 上能同時兼顧搜尋曝光與轉換說服。\n\n推薦給重視舒適、外型簡約、希望一雙鞋能搭配多種生活情境的消費者。</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成完整介紹')">重新生成</button></div></div>`)
-blocks.push(`<div class="product-result-block"><h3>商品規格整理</h3><div class="editable-copy" contenteditable="true">${ctx.parsed.specs.map(([k,v])=>`${k}：${v}`).join('\n')}</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新整理規格')">重新生成</button></div></div>`)
-blocks.push(`<div class="product-result-block"><h3>平台分類與 SEO</h3><div class="editable-copy" contenteditable="true">平台分類：${category}\nSEO Title：${ctx.name}｜${ctx.parsed.features.slice(0,3).join('、')}\nMeta Description：${ctx.name} 結合 ${ctx.parsed.features.slice(0,3).join('、')}，適合日常通勤與週末穿搭，立即查看 ${ctx.brand} 精選商品。</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成 SEO')">重新生成</button></div></div>`)
+function productPlatformResultHtml(platform,ctx,active){const tone=platformTone(platform);const category=(ctx.parsed.categories&&ctx.parsed.categories[platform])||'通用商品分類';const blocks=[];const imageTypes=ctx.imageOutputs.length?ctx.imageOutputs:['商品主圖','商品特色圖','商品規格圖','商品情境圖'];const imageMeta={'商品主圖':['1:1','白底或乾淨背景，商品外觀不可變形。'],'商品特色圖':['1:1','聚焦 2-3 個核心特色，避免塞入過多文字。'],'商品規格圖':['1:1','只放已確認規格，未確認數字標示待補充。'],'商品情境圖':['1000x1000','表達使用情境，商品仍需是主視覺焦點。'],'使用方法 / 流程圖':['1000x1000','以步驟方式呈現使用流程或保養方式。'],'商品比較表':['1000x1000','比較項目需有資料來源，不能自行補值。'],'去背商品圖':['PNG','僅保留商品本體，外觀與原圖一致。']};
+imageTypes.forEach((type,idx)=>{const meta=imageMeta[type]||['1:1','依商品資料生成'];const feature=ctx.parsed.features[idx%Math.max(ctx.parsed.features.length,1)]||'商品特色';blocks.push(`<div class="product-result-block product-image-result"><div class="product-result-top"><h3>${escapeHtml(type)}</h3><span class="pill green">檢查通過</span></div><div class="main-image-preview">${escapeHtml(type)}<br><span class="muted">${escapeHtml(platform)}｜${meta[0]}｜依品牌視覺規範生成</span></div><div class="image-spec-summary"><div><b>圖中文字</b><span>${escapeHtml(feature)}｜${escapeHtml(ctx.name)}</span></div><div><b>使用規格</b><span>${escapeHtml((ctx.parsed.specs[0]||['規格','資料待確認']).join('：'))}</span></div><div><b>生成要求</b><span>${escapeHtml(meta[1])}</span></div></div><div class="block-toolbar"><button class="btn" onclick="toast('已重新生成 ${safeJs(type)}')">重新生成</button><button class="btn" onclick="toast('已開啟 ${safeJs(type)} 調整')">AI調整</button><button class="btn primary" onclick="saveCreativeToAssetLibrary('media','${safeJs(type)}｜${safeJs(ctx.name)}','商品圖片','AI 生成商品圖片')">儲存至素材庫</button></div></div>`)});const title=`${tone.title}`;if(ctx.textOutputs.includes('圖片主標'))blocks.push(`<div class="product-result-block"><h3>圖片主標</h3><div class="editable-copy" contenteditable="true">${escapeHtml(title)}</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成圖片主標')">重新生成</button></div></div>`);
+if(ctx.textOutputs.includes('圖片功能說明'))blocks.push(`<div class="product-result-block"><h3>圖片功能說明</h3><div class="editable-copy" contenteditable="true">${ctx.parsed.features.slice(0,3).map(x=>`・${x}`).join('\n')}</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成功能說明')">重新生成</button></div></div>`);
+if(ctx.textOutputs.includes('商品頁短描述'))blocks.push(`<div class="product-result-block"><h3>商品頁短描述</h3><div class="editable-copy" contenteditable="true">以 ${ctx.brand} 的品牌語氣，為 ${ctx.name} 建立可搭配商品圖片使用的短版商品說明。${tone.note}。</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成短描述')">重新生成</button></div></div>`);
+if(ctx.textOutputs.includes('SEO Title')||ctx.textOutputs.includes('Meta Description'))blocks.push(`<div class="product-result-block"><h3>SEO 輔助文案</h3><div class="editable-copy" contenteditable="true">商品分類：${category}\nSEO Title：${ctx.name}｜${ctx.parsed.features.slice(0,3).join('、')}\nMeta Description：${ctx.name} 結合 ${ctx.parsed.features.slice(0,3).join('、')}，適合日常通勤與週末穿搭。</div><div class="block-toolbar"><button class="btn" onclick="copyText(this)">複製</button><button class="btn" onclick="toast('已重新生成 SEO')">重新生成</button></div></div>`);
 return `<div class="product-platform-panel ${active?'active':''}" data-platform="${escapeHtml(platform)}" style="display:${active?'grid':'none'};gap:12px">${blocks.join('')}</div>`}
 function switchProductContentTab(platform,btn){document.querySelectorAll('#productContentTabs button').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');document.querySelectorAll('.product-platform-panel').forEach(p=>{p.style.display=(p.dataset.platform===platform)?'grid':'none'});toast('已切換平台版本：'+platform)}
 function switchProductCompareView(btn){document.querySelectorAll('#productContentTabs button').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');document.querySelectorAll('.product-platform-panel').forEach(p=>{p.style.display='grid'});toast('已顯示全部平台比較')}
@@ -317,7 +337,7 @@ function saveProductWorkspace(name){
  const btn=document.activeElement;
  if(btn&&btn.tagName==='BUTTON'){
    const old=btn.textContent;
-   btn.textContent='✓ 已儲存目前平台版本';
+   btn.textContent='✓ 已儲存目前版本';
    setTimeout(()=>{btn.textContent=old},1600);
  }
 }
@@ -326,7 +346,7 @@ function generateCreative(){const type=window.creativeType||'product', mode=wind
  if(type==='product'){
   const brand=(document.getElementById('productBrand')?.value||'E2B Select').trim();
   const desc=(document.getElementById('creativeDesc')?.value||'白色厚底老爹鞋，透氣鞋面，EVA 軟底，適合通勤與日常穿搭。').trim();
-  const style=(document.getElementById('productCopyStyle')?.value||'極簡質感').trim();
+  const style=(document.getElementById('productCopyStyle')?.value||'品牌預設').trim();
   const textOutputs=selectedPicks('.content-picks').filter(x=>!x.includes('AI生成')&&!x.includes('V2'));
   const imageOutputs=selectedPicks('.image-content-picks');
   const marketing=selectedPicks('.goal-picks').join('、')||'新品上市、限時優惠';
@@ -336,14 +356,12 @@ function generateCreative(){const type=window.creativeType||'product', mode=wind
     const parsed=existingProductParsedFromForm(p);
     cards=existingProductOptimizationWorkspaceHtml(p,{name:p?.name||name,brand,desc,style,marketing,textOutputs,imageOutputs,parsed,productType:parsed.type||'鞋類 / 厚底休閒鞋',platform:existingPlatform});
   }else{
-    const selectedPlatforms=selectedPicks('.platform-picks');
-    const platformsArr=selectedPlatforms.length?selectedPlatforms:['momo','蝦皮'];
     if(!window.productParsedData) manualCreateProductData(true);
     const parsed=newProductParsedFromForm()||window.productParsedData||getDemoProductParsed();
     window.productParsedData=parsed;
     const productType=parsed.type||'鞋類 / 厚底休閒鞋';
-    const platformCards=platformsArr.map((platform,idx)=>productPlatformResultHtml(platform,{name,brand,desc,style,marketing,textOutputs,imageOutputs,parsed,productType},idx===0)).join('');
-    cards=`<div class="product-output-split"><div class="product-workspace-head"><div><h2 style="margin:0 0 6px">內容工作區</h2><p class="muted" style="margin:0">同一個商品會依平台產生不同版本；儲存時只會儲存目前切換中的平台版本。</p></div><div class="workspace-actions"><button class="btn" onclick="generateCreative()">重新生成全部</button><button class="btn primary" onclick="saveProductWorkspace('${safeJs(name)}')">儲存目前平台版本</button></div></div><div class="product-tabs" id="productContentTabs">${platformsArr.map((p,i)=>`<button class="${i===0?'active':''}" onclick="switchProductContentTab('${safeJs(p)}',this)">${p}</button>`).join('')}</div><div id="productPlatformResults">${platformCards}</div></div>`
+    const productCards=productPlatformResultHtml('通用商品圖',{name,brand,desc,style,marketing,textOutputs,imageOutputs,parsed,productType},true);
+    cards=`<div class="product-output-split"><div class="product-workspace-head"><div><h2 style="margin:0 0 6px">商品圖片工作區</h2><p class="muted" style="margin:0">MVP 先產生通用商品圖版本，後續取得各平台規格後再拆分平台格式。</p></div><div class="workspace-actions"><button class="btn" onclick="generateCreative()">重新生成全部</button><button class="btn primary" onclick="saveProductWorkspace('${safeJs(name)}')">儲存通用版本</button></div></div><div id="productPlatformResults">${productCards}</div></div>`
   }
  }else if(type==='ad'){
   const text=`廣告標題｜${mode==='opt'?'重新優化版：':''}${name}｜限時 3 天，厚底老爹鞋 7 折開跑
@@ -483,7 +501,8 @@ const assetLibrary=[
  {name:'品牌形象生活照',type:'生活情境圖',cls:'scene',size:'16:9',emoji:'🏙'},
  {name:'限動優惠版位圖',type:'尺寸延展圖',cls:'ad',size:'9:16',emoji:'⚡'}
 ];
-function openAssetLibrary(){
+function openAssetLibrary(mode='default'){
+ window.assetLibraryMode=mode;
  const grid=$('#assetLibraryGrid');
  if(grid){grid.innerHTML=assetLibrary.map((a,i)=>`<div class="asset-card" onclick="selectAsset(${i})"><div class="asset-preview ${a.cls}">${a.emoji}<br>${a.type}<br><span class="muted">${a.size}</span></div><div class="asset-meta"><b>${a.name}</b><span>${a.type}・${a.size}</span></div></div>`).join('')}
  $('#assetLibraryModal').classList.add('show')
@@ -491,6 +510,11 @@ function openAssetLibrary(){
 function closeAssetLibrary(){ $('#assetLibraryModal').classList.remove('show') }
 function selectAsset(i){
  const a=assetLibrary[i];
+ if(window.assetLibraryMode==='product-image'){
+   addProductImageChip(a.name,`${a.type}・${a.size}`,a.emoji);
+   toast('已加入商品相關圖片：'+a.name);
+   return;
+ }
  const box=$('#selectedAssets');
  if(box){
    const empty=box.querySelector('span');
@@ -500,47 +524,6 @@ function selectAsset(i){
  closeAssetLibrary();
  toast('已引用素材：'+a.name)
 }
-
-
-let globalReportTypes=['overall'];
-const globalReportData={
- overall:{code:'CH.01',title:'品牌健康度與定位診斷',en:'Brand Health & Positioning Diagnosis',body:`品牌以「都會輕奢 × 機能日常」為核心，於 25-34 歲都會白領族群中具備鮮明辨識度。AI 綜合分析顯示，消費者對品牌的關鍵聯想集中於「質感」、「實穿」與「值得信賴」。`,points:['女鞋與鞋包類商品營收占比 18%，但回購率領先 12%','內容行銷互動率高於市場均值的 2.3 倍','跨平台庫存週轉天數低於產業 23%']},
- product:{code:'CH.02',title:'商品組合與結構分析',en:'Product Mix & Structure Analysis',body:`目前商品組合以「極簡風老爹鞋系列」作為主力，帶動整體銷售與流量。AI 建議將高轉換商品拆分為入門款、主推款與高毛利搭配款，提升組合銷售效率。`,points:['極簡風老爹鞋系列營收占比 32%，具備擴量潛力','日常配件與包款可作為加購品提高客單價','高單價限定聯名商品適合維持品牌聲量']},
- ad:{code:'CH.03',title:'廣告投放效益與預算建議',en:'Advertising Efficiency & Budget Allocation',body:`廣告成效呈現兩極化。品牌字搜尋與 Meta 春季促銷具備加碼條件，但低 ROAS 關鍵字與短影音素材需優先停損或重製。`,points:['品牌字搜尋 ROAS 6.8x，建議增加 20% 預算','皮鞋推薦關鍵字 CPA 偏高，應暫停或重寫文案','TikTok 前 3 秒留存不足，需更換開場鉤子']},
- social:{code:'CH.04',title:'社群文案與影音內容洞察',en:'Social Content & Creative Insight',body:`短影音互動率優於圖文內容，尤其 TikTok 與 Shorts 可作為新品測試場。社群文案應強化情境、痛點與明確 CTA。`,points:['TikTok 短影音互動率 9.2%，全站表現第一','IG 夏季新品貼文收藏表現佳，可延伸成廣告素材','FB 優惠通知互動偏低，建議重寫標題與主視覺']}
-};
-function toggleReportType(type,btn){
- if(type==='overall'){
-   globalReportTypes=['overall'];
-   document.querySelectorAll('.report-type').forEach(b=>b.classList.remove('active'));
-   btn.classList.add('active');
- }else{
-   const allBtn=document.querySelector('[data-report-type="overall"]');
-   allBtn?.classList.remove('active');
-   globalReportTypes=globalReportTypes.filter(x=>x!=='overall');
-   if(globalReportTypes.includes(type)){globalReportTypes=globalReportTypes.filter(x=>x!==type);btn.classList.remove('active')}else{globalReportTypes.push(type);btn.classList.add('active')}
-   if(!globalReportTypes.length){globalReportTypes=['overall'];allBtn?.classList.add('active')}
- }
- renderReportBody();
-}
-function selectedReportItems(){
- const keys=globalReportTypes.includes('overall')?['overall','product','ad','social']:globalReportTypes;
- return keys.map(k=>globalReportData[k]);
-}
-function renderReportBody(){
- const items=selectedReportItems();
- const body=$('#globalReportBody');
- if(!body)return;
- body.innerHTML=`<article class="report-page"><div class="report-title-row"><div><div class="report-kicker">• E2B · STRATEGIC REPORT</div><h2>${globalReportTypes.includes('overall')?'品牌全域成長與決策報告':'AI 決策報告｜'+items.map(x=>x.title.replace('分析','')).join('、')}</h2><p class="muted">Generated by E2B Engine · 2026 Q2 · Confidential</p></div><div class="report-no">Report No.<br><b>NB-2026-Q2-0421</b></div></div>
- ${items.map((it,idx)=>`<section class="report-section"><div class="report-section-head"><div><span class="report-code">${it.code}</span><b>${it.title}</b></div><span class="report-en">${it.en}</span></div>${idx===0&&globalReportTypes.includes('overall')?`<div class="report-two-col"><div class="ring"><div class="ring-inner"><span>綜合健康度</span><b>88</b><span>優於 92% 同業</span></div></div><div class="report-copy"><h3>AI 診斷摘要</h3><p>${it.body}</p><ul>${it.points.map(p=>`<li>${p}</li>`).join('')}</ul></div></div>`:`<div class="report-copy"><p>${it.body}</p><ul>${it.points.map(p=>`<li>${p}</li>`).join('')}</ul></div>`}</section>`).join('')}
- <section class="report-section"><div class="report-section-head"><div><span class="report-code">CH.99</span><b>AI 下一步決策建議</b></div><span class="report-en">Recommended Actions</span></div><div class="report-grid"><div class="report-mini"><h3>優先處理</h3><p>${globalReportTypes.includes('ad')||globalReportTypes.includes('overall')?'暫停低 ROAS 廣告組，將預算轉移至品牌字搜尋與高轉換素材。':'針對已選報告類型建立 7 日內改善任務。'}</p></div><div class="report-mini"><h3>成長機會</h3><p>${globalReportTypes.includes('social')||globalReportTypes.includes('overall')?'將高互動短影音腳本轉為廣告素材，建立內容到投放的循環。':'將高分內容儲存至資產庫並建立複用模板。'}</p></div></div></section></article>`;
-}
-function renderGlobalInsight(){
- activeNav('global');$('#dataPage').classList.add('hidden');$('#opsPage').classList.remove('hidden');
- $('#opsPage').innerHTML=`<div class="topbar"><div><span class="tag">✦ AI Strategic Report</span><h1>全域洞察與決策中心</h1><p class="subtitle">整合品牌、商品、市場與廣告數據，由 AI 引擎驅動的企業全域成長報告</p></div><div class="report-actions"><button class="btn" onclick="toast('已重新生成 AI 診斷')">⚡ 重新生成 AI 診斷</button><button class="btn primary" onclick="toast('PDF 報告已匯出')">⇩ 匯出 PDF 報告</button></div></div><section class="global-filter-card"><div class="global-filter-head"><div><h3 style="margin:0 0 6px">報告類型</h3><p class="muted" style="margin:0">可多選報告內容；選擇「整體評估」會產出完整全域報告。</p></div></div><div class="global-filter-options"><button class="chip-btn report-type active" data-report-type="overall" onclick="toggleReportType('overall',this)">整體評估</button><button class="chip-btn report-type" data-report-type="product" onclick="toggleReportType('product',this)">商品</button><button class="chip-btn report-type" data-report-type="ad" onclick="toggleReportType('ad',this)">廣告</button><button class="chip-btn report-type" data-report-type="social" onclick="toggleReportType('social',this)">社群文案</button></div></section><div id="globalReportBody"></div>`;
- globalReportTypes=['overall']; renderReportBody(); toast('已切換到 全域洞察與決策中心');
-}
-
 
 
 function setupAccountMenu(){
@@ -576,18 +559,168 @@ function initThemeMode(){
 }
 initThemeMode();
 
+const enterpriseKnowledgeItems=[
+  {title:'品牌定位與故事',status:'已建立',score:'92%',sourceTypes:['品牌知識','社群相關'],desc:'品牌以都會輕機能與日常質感為核心，主張讓通勤與生活穿搭兼具舒適、簡潔與可信賴。',missing:'可補充品牌創辦故事、核心差異與禁用語。'},
+  {title:'品牌語氣與視覺規範',status:'已建立',score:'88%',sourceTypes:['品牌知識','社群相關','商品知識'],desc:'語氣偏清楚、親近、質感，不使用過度誇張促銷語；視覺以乾淨留白、明亮商攝與低飽和品牌色為主。',missing:'可補充 Logo 使用規則、字體、色票與圖片禁忌。'},
+  {title:'商品型錄與規格',status:'已同步',score:'76%',sourceTypes:['商品知識'],desc:'已整理商品類型、商品特色、規格欄位與可用於商品圖的短標。未確認規格會標示為待補充。',missing:'部分商品缺少型號、材質與尺寸資料。'},
+  {title:'活動與促銷資料',status:'待補充',score:'54%',sourceTypes:['活動相關','商品知識'],desc:'已辨識 618、會員日與新品上市等活動類型，可支援活動圖與促購文案方向。',missing:'缺少完整活動期間、優惠條件與不可用宣稱。'},
+  {title:'目標客群與會員資料',status:'已建立',score:'71%',sourceTypes:['客戶資料','廣告資料','社群相關'],desc:'目前可辨識高價值會員、新客、回購客與流失風險客群，支援語氣調整與 CRM 經營建議。',missing:'可補充會員分級規則與更細的興趣標籤。'},
+  {title:'廣告素材與投放成效',status:'已同步',score:'68%',sourceTypes:['廣告資料','商品知識'],desc:'E2B 已知道過去投放中舒適、百搭、限時優惠等訴求較常帶來點擊與轉換。',missing:'部分廣告缺少素材版本與落地頁對應。'},
+  {title:'社群內容與互動成效',status:'已同步',score:'74%',sourceTypes:['社群相關','商品知識'],desc:'粉絲對生活情境、穿搭示範、短影音開箱與真實使用語氣互動較高。',missing:'可補充留言常見問題與 UGC 素材。'}
+];
+const dataParsedSources=[
+  {name:'品牌介紹與官網內容.pdf',userTypes:['品牌知識'],aiTypes:['品牌知識','社群相關'],finalTypes:['品牌知識'],status:'已確認',time:'2026-06-10 09:18',summary:'擷取品牌主張、核心差異、品牌語氣與圖片風格線索。',fields:['品牌主張：都會日常 × 輕機能','語氣：清楚、親近、質感','禁用：過度浮誇、醫療級宣稱']},
+  {name:'新品上架清單.xlsx',userTypes:['商品知識'],aiTypes:['商品知識'],status:'待確認',time:'2026-06-10 09:02',summary:'擷取商品名稱、型號、分類、規格欄位與可用於商品圖的特色短標。',fields:['極簡白底老爹鞋：尺寸 22-27cm','材質：透氣帆布、EVA 軟底','待確認：鞋底高度、包裝內容']},
+  {name:'2026Q2_sales.csv',userTypes:['客戶資料'],aiTypes:['客戶資料','商品知識'],finalTypes:['客戶資料'],status:'已確認',time:'2026-06-08 14:32',summary:'擷取商品銷售趨勢、客單價、回購行為與高價值客群線索。',fields:['高價值客群偏好舒適通勤鞋款','白色厚底鞋帶動回購搭配品','週末活動轉換高於平日']},
+  {name:'Meta_春季促銷_廣告.json',userTypes:['廣告資料'],aiTypes:['廣告資料'],status:'需修正',time:'2026-06-10 08:15',summary:'部分素材欄位解析失敗，但已擷取廣告主文案、CTA 與基礎成效指標。',fields:['有效訴求：百搭、透氣、限時優惠','缺少：素材縮圖對應、落地頁 ID','建議重新同步 Meta Ads']},
+  {name:'IG_貼文互動_近90天.csv',userTypes:['社群相關'],aiTypes:['社群相關','客戶資料'],status:'類型不一致',time:'2026-06-09 17:45',summary:'擷取高互動貼文格式、留言問題、常見 Hashtag 與粉絲偏好語氣。',fields:['高互動：穿搭情境、真實開箱、短影音','粉絲常問：尺寸、顏色、材質','語氣：生活感、直接、少硬廣']}
+];
+function typeChips(types){return (types||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ')||'<span class="muted">尚未判斷</span>'}
+function parsedStatusClass(status){return status==='已確認'?'green':status==='需修正'?'red':status==='類型不一致'?'amber':'amber'}
+const KNOWLEDGE_AXIS_BY_TYPE={
+  品牌知識:['品牌定位與故事','品牌語氣與視覺規範'],
+  商品知識:['商品型錄與規格'],
+  活動相關:['活動與促銷資料'],
+  客戶資料:['目標客群與會員資料'],
+  廣告資料:['廣告素材與投放成效'],
+  社群相關:['社群內容與互動成效']
+};
+function finalDataTypes(item){
+  if(item?.finalTypes?.length) return item.finalTypes;
+  if(item?.userTypes?.length) return item.userTypes;
+  if(item?.aiTypes?.length) return item.aiTypes;
+  return [];
+}
+function enterpriseAxesForTypes(types){
+  return [...new Set((types||[]).flatMap(type=>KNOWLEDGE_AXIS_BY_TYPE[type]||[]))];
+}
+function typesMatch(userTypes,aiTypes){
+  const a=[...(userTypes||[])].sort().join('|');
+  const b=[...(aiTypes||[])].sort().join('|');
+  return a===b;
+}
+function inferDemoAiTypes(fileName,userTypes){
+  const name=String(fileName||'').toLowerCase();
+  if(/meta|google|ads|廣告|投放/.test(name)) return ['廣告資料'];
+  if(/ig|fb|tiktok|社群|貼文|互動/.test(name)) return ['社群相關','客戶資料'];
+  if(/商品|sku|上架|型錄|規格|product/.test(name)) return ['商品知識'];
+  if(/活動|促銷|檔期|edm|campaign/.test(name)) return ['活動相關','商品知識'];
+  if(/會員|客戶|crm|customer|sales|訂單/.test(name)) return ['客戶資料','商品知識'];
+  if(/品牌|brand|about|官網/.test(name)) return ['品牌知識'];
+  return userTypes?.length?[...userTypes]:['品牌知識'];
+}
+function knowledgeCardsHtml(){
+  return enterpriseKnowledgeItems.map((item,i)=>`<button type="button" class="knowledge-card" onclick="openEnterpriseKnowledge(${i})"><div class="knowledge-top"><b>${item.title}</b><span class="pill ${item.status.includes('待')?'amber':'green'}">${item.status}</span></div><p>${item.desc}</p><div class="knowledge-foot"><span>完整度 ${item.score}</span><i style="width:${item.score}"></i></div></button>`).join('');
+}
+function parsedSourcesRowsHtml(){
+  return dataParsedSources.map((item,i)=>{
+    const finalTypes=finalDataTypes(item);
+    return `<tr><td><b>${item.name}</b><br><span class="muted">${item.summary}</span></td><td>${typeChips(finalTypes)}</td><td><span class="pill ${parsedStatusClass(item.status)}">● ${item.status}</span></td><td>${item.time}</td><td><button class="op" onclick="openDataExtractDetail(${i})">查看解析</button></td></tr>`;
+  }).join('');
+}
+function renderEnterpriseKnowledgeChatAnswer(question){
+  const box=document.getElementById('knowledgeChatMessages');if(!box)return;
+  const q=(question||'').trim()||'E2B 目前對我們品牌了解什麼？';
+  box.insertAdjacentHTML('beforeend',`<div class="chat-msg user">${escapeHtml(q)}</div>`);
+  const answer=q.includes('商品')?'目前已掌握商品型錄、規格欄位與可用於商品圖的特色短標；仍有部分型號與材質需要使用者確認。':q.includes('品牌')?'E2B 目前理解品牌偏都會日常、輕機能與質感語氣，圖片方向應維持乾淨留白與商品主體清楚。':q.includes('客群')?'目前可辨識高價值會員、新客、回購客與流失風險客群，可用於 CRM 建議與廣告受眾方向。':'E2B 已建立品牌、商品、活動、客群、廣告與社群互動等企業認知；每個模組都可以點卡片查看來源與待補充項目。';
+  box.insertAdjacentHTML('beforeend',`<div class="chat-msg ai">${answer}</div>`);
+  box.scrollTop=box.scrollHeight;
+}
+function askEnterpriseKnowledge(){
+  const input=document.getElementById('knowledgeQuestion');if(!input)return;
+  renderEnterpriseKnowledgeChatAnswer(input.value);
+  input.value='';
+}
+function openEnterpriseKnowledge(index){
+  const item=enterpriseKnowledgeItems[index];if(!item)return;
+  $('#segmentModalContent').innerHTML=`<span class="label">${item.status}</span><h2>${item.title}</h2><p class="lead">${item.desc}</p><div class="ai-section"><h3>資料來源類型</h3><p>${typeChips(item.sourceTypes)}</p><p class="muted">若要查看實際檔案，請到下方「檔案解析結果確認」列表查找。</p></div><div class="impact-box"><b>待補充 / 待確認</b><p>${item.missing}</p></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn" onclick="closeSegmentModal()">關閉</button></div>`;
+  $('#segmentModal').classList.add('show');
+}
+function openDataExtractDetail(index){
+  const item=dataParsedSources[index];if(!item)return;
+  const mismatch=item.status==='類型不一致';
+  const finalTypes=finalDataTypes(item);
+  const typeBlock=mismatch?`<div class="type-review-grid"><div><h3>原本設定的資料類型</h3><p>${typeChips(item.userTypes)}</p></div><div><h3>AI 分析出的資料類型</h3><p>${typeChips(item.aiTypes)}</p></div></div><div class="impact-box"><b>資料類型不一致</b><p>AI 判斷此檔案內容與上傳時標記的資料類型不完全一致。請確認後再套用最終資料類型。</p></div>`:`<div class="ai-section"><h3>資料類型</h3><p>${typeChips(finalTypes)}</p></div>`;
+  const confirmAction=item.status==='已確認'?'':`<button class="btn primary" onclick="confirmDataExtract(${index})">確認解析結果</button>`;
+  const primaryActions=`${mismatch?`<button class="btn" onclick="applyUserMarkedTypes(${index})">保留原本設定</button><button class="btn" onclick="applyAiDetectedTypes(${index})">採用 AI 判斷</button>`:''}<button class="btn" onclick="reparseDataSource(${index})">重新解析</button>${confirmAction}`;
+  $('#segmentModalContent').innerHTML=`<div class="modal-head-row"><div><span class="label">${finalTypes?.[0]||'資料來源'}</span> <span class="pill ${parsedStatusClass(item.status)}">● ${item.status}</span></div></div><h2>${item.name}</h2><p class="lead">${item.summary}</p>${typeBlock}<div class="ai-section"><h3>AI 擷取內容</h3><ul>${item.fields.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div><div class="ai-section"><h3>用於以下企業認知</h3><p>${typeChips(enterpriseAxesForTypes(finalTypes))}</p></div><div class="modal-actions"><div class="modal-secondary-actions"><button class="btn danger" onclick="deleteDataSource(${index})">刪除資料</button></div><div class="modal-primary-actions">${primaryActions}</div></div>`;
+  $('#segmentModal').classList.add('show');
+}
+function applyUserMarkedTypes(index){
+  const item=dataParsedSources[index];if(!item)return;
+  item.aiTypes=[...(item.userTypes||[])];
+  item.finalTypes=[...(item.userTypes||[])];
+  item.status='待確認';
+  openDataExtractDetail(index);
+  toast('已保留使用者標記類型');
+}
+function applyAiDetectedTypes(index){
+  const item=dataParsedSources[index];if(!item)return;
+  item.userTypes=[...(item.aiTypes||[])];
+  item.finalTypes=[...(item.aiTypes||[])];
+  item.status='待確認';
+  openDataExtractDetail(index);
+  toast('已採用 AI 判斷類型');
+}
+function confirmDataExtract(index){
+  if(dataParsedSources[index]){
+    dataParsedSources[index].finalTypes=finalDataTypes(dataParsedSources[index]);
+    dataParsedSources[index].status='已確認';
+  }
+  closeSegmentModal();
+  renderData();
+  toast('已確認解析結果並更新企業認知');
+}
+function reparseDataSource(index){
+  const item=dataParsedSources[index];if(!item)return;
+  const baseTypes=finalDataTypes(item);
+  const aiTypes=inferDemoAiTypes(item.name,baseTypes);
+  item.userTypes=[...baseTypes];
+  item.aiTypes=aiTypes;
+  item.status=typesMatch(baseTypes,aiTypes)?'待確認':'類型不一致';
+  item.time='剛剛';
+  item.summary='已重新解析檔案，請確認資料類型與擷取內容。';
+  delete item.finalTypes;
+  closeSegmentModal();
+  renderData();
+  toast('已重新解析，請查看解析結果');
+}
+function deleteDataSource(index){
+  const item=dataParsedSources[index];if(!item)return;
+  if(!confirm(`確定要刪除「${item.name}」嗎？`)) return;
+  dataParsedSources.splice(index,1);
+  closeSegmentModal();
+  renderData();
+  toast('已刪除資料');
+}
+function refreshEnterpriseKnowledge(){
+  const confirmedTypes=[...new Set(dataParsedSources.filter(item=>item.status==='已確認').flatMap(item=>finalDataTypes(item)))];
+  const usedAxes=enterpriseAxesForTypes(confirmedTypes);
+  enterpriseKnowledgeItems.forEach(item=>{
+    if(usedAxes.includes(item.title)){
+      item.status='已重新彙整';
+      item.score=item.score==='92%'?'93%':item.score;
+    }
+  });
+  renderData();
+  toast('已重新彙整 E2B 企業認知');
+}
+const E2B_RENDER_DATA_BEFORE_KNOWLEDGE_CENTER=renderData;
+renderData=function(){
+  activeNav('data');
+  $('#dataPage').innerHTML=`<div class="topbar"><div><div class="breadcrumb">工作區 / AI 核心與數據中心</div><h1>AI 核心與數據中心</h1><p class="subtitle">集中管理資料來源、檔案解析結果與 E2B 對企業的 AI 認知。</p></div></div><section class="metrics"><div class="card"><h3>檔案空間容量</h3><div class="big">12.4 GB</div><div class="muted">/ 50 GB，已使用 24.8%</div><div class="progress"><span style="width:24.8%"></span></div></div><div class="card"><h3>解析待確認</h3><div class="big">${dataParsedSources.filter(x=>x.status!=='已確認').length}</div><div class="muted">待確認或需修正的擷取結果</div></div><div class="card"><h3>企業認知完整度</h3><div class="big">74%</div><div class="muted">7 個認知模組已建立</div><div class="progress"><span style="width:74%"></span></div></div><div class="card clickable" onclick="openUsage()"><h3>AI 點數使用量</h3><div class="big">125 / 300</div><div class="muted">本月已使用 41.7%</div><div class="progress"><span style="width:41.7%"></span></div></div></section><section class="workspace-card"><div class="workspace-tabs"><button class="tab active" data-tab="file">檔案上傳</button><button class="tab" data-tab="cloud">雲端與網址</button><button class="tab" data-tab="ads">廣告與平台串接</button></div><div id="dataWork"></div></section><section class="knowledge-overview"><div class="knowledge-main"><div class="section-head compact"><div><h2>E2B 企業認知總覽</h2><p class="muted">上傳與串接資料會被整理成以下 7 個認知主軸；此處只顯示引用的資料類型，實際檔案請到下方列表查看。</p></div><button class="btn" type="button" onclick="refreshEnterpriseKnowledge()">重新彙整企業認知</button></div><div class="knowledge-grid">${knowledgeCardsHtml()}</div></div><aside class="knowledge-chat"><h3>詢問 E2B 目前對企業的了解</h3><div id="knowledgeChatMessages" class="knowledge-chat-messages"><div class="chat-msg ai">你可以問我：目前品牌定位是什麼？哪些商品規格還缺？粉絲喜歡什麼內容？</div></div><div class="knowledge-chat-input"><input id="knowledgeQuestion" placeholder="輸入問題，例如：E2B 目前知道我們品牌什麼？" onkeydown="if(event.key==='Enter')askEnterpriseKnowledge()"><button class="btn primary" onclick="askEnterpriseKnowledge()">詢問</button></div></aside></section><div class="section-head"><div><h2>檔案解析結果確認</h2><p class="muted">列表顯示每份資料的最終資料類型；企業認知套用結果與類型不一致比對，請進入解析彈窗確認。</p></div><div class="filters"><select class="filter"><option>狀態：全部</option></select><select class="filter"><option>類型：全部</option></select></div></div><section class="table-card"><div class="table-tools"><input class="search" placeholder="搜尋資料名稱、標籤或來源..."><button class="btn">清除篩選</button></div><table><thead><tr><th>資料名稱 / AI 摘要</th><th>資料類型</th><th>解析狀態</th><th>更新時間</th><th>操作</th></tr></thead><tbody>${parsedSourcesRowsHtml()}</tbody></table></section>`;
+  bindDataTabs();
+  renderDataWork('file');
+}
 
 /* E2B inline local file upload */
-const DATA_UPLOAD_TYPES=['商品知識','品牌知識','營運資料','廣告資料','社群內容','其他文件'];
+const DATA_UPLOAD_TYPES=['品牌知識','商品知識','活動相關','客戶資料','廣告資料','社群相關'];
 let dataUploadFiles=[];
 function fileSizeLabel(bytes){
   if(!bytes && bytes!==0) return '';
   if(bytes < 1024) return bytes + ' B';
   if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
   return (bytes/1024/1024).toFixed(1) + ' MB';
-}
-function dataTypeOptions(current){
-  return '<option value="">請選擇資料類型</option>' + DATA_UPLOAD_TYPES.map(t=>`<option value="${t}" ${t===current?'selected':''}>${t}</option>`).join('');
 }
 function renderDataUploadPreview(){
   const preview=document.getElementById('dataUploadPreview');
@@ -596,9 +729,9 @@ function renderDataUploadPreview(){
     preview.innerHTML='<div class="file-source-empty">尚未選擇任何檔案</div>';
     return;
   }
-  preview.innerHTML=dataUploadFiles.map((item,idx)=>`<div class="file-source-row ${item.type?'':'missing-type'}">
-    <div class="file-source-name"><b>📄 ${item.file.name}</b><span>${fileSizeLabel(item.file.size)}・${item.type ? item.type : '尚未選擇資料類型'}</span></div>
-    <select onchange="changeDataUploadFileType(${idx}, this.value)">${dataTypeOptions(item.type)}</select>
+  preview.innerHTML=dataUploadFiles.map((item,idx)=>`<div class="file-source-row multi-type ${item.types?.length?'':'missing-type'}">
+    <div class="file-source-name"><b>📄 ${item.file.name}</b><span>${fileSizeLabel(item.file.size)}・${item.types?.length ? item.types.join('、') : '尚未選擇資料類型'}</span></div>
+    <div class="upload-type-picks">${DATA_UPLOAD_TYPES.map(t=>`<label class="type-check ${item.types?.includes(t)?'active':''}"><input type="checkbox" ${item.types?.includes(t)?'checked':''} onchange="toggleDataUploadFileType(${idx}, '${t}', this.checked)">${t}</label>`).join('')}</div>
     <button class="remove-file-btn" type="button" title="移除此檔案" onclick="removeDataUploadFile(${idx})">×</button>
   </div>`).join('');
 }
@@ -608,7 +741,7 @@ function addDataUploadFiles(files){
   incoming.forEach(file=>{
     const key=`${file.name}|${file.size}|${file.lastModified}`;
     const exists=dataUploadFiles.some(item=>`${item.file.name}|${item.file.size}|${item.file.lastModified}`===key);
-    if(!exists) dataUploadFiles.push({file,type:''});
+    if(!exists) dataUploadFiles.push({file,types:[]});
   });
   renderDataUploadPreview();
   if(typeof toast==='function') toast(`已加入 ${incoming.length} 個檔案，請逐筆選擇資料類型`);
@@ -623,8 +756,11 @@ function handleDataDrop(event){
   zone?.classList.remove('dragging');
   addDataUploadFiles(event.dataTransfer?.files || []);
 }
-function changeDataUploadFileType(index, type){
-  if(dataUploadFiles[index]) dataUploadFiles[index].type=type;
+function toggleDataUploadFileType(index, type, checked){
+  const item=dataUploadFiles[index];if(!item)return;
+  item.types=item.types||[];
+  if(checked && !item.types.includes(type)) item.types.push(type);
+  if(!checked) item.types=item.types.filter(t=>t!==type);
   renderDataUploadPreview();
 }
 function removeDataUploadFile(index){
@@ -637,14 +773,22 @@ function finishDataUpload(){
     alert('請先選擇要上傳的檔案。');
     return;
   }
-  const missing=dataUploadFiles.filter(item=>!item.type);
+  const missing=dataUploadFiles.filter(item=>!item.types?.length);
   if(missing.length){
     alert(`有 ${missing.length} 個檔案尚未選擇資料類型，請先選擇後再進行解析。`);
     return;
   }
-  const grouped=dataUploadFiles.reduce((acc,item)=>{acc[item.type]=(acc[item.type]||0)+1;return acc;},{});
+  const grouped=dataUploadFiles.reduce((acc,item)=>{(item.types||[]).forEach(type=>acc[type]=(acc[type]||0)+1);return acc;},{});
+  const uploadCount=dataUploadFiles.length;
   const summary=Object.entries(grouped).map(([type,count])=>`${type} ${count} 筆`).join('、');
-  if(typeof toast==='function') toast(`已開始解析 ${dataUploadFiles.length} 個檔案：${summary}`);
+  dataUploadFiles.forEach(item=>{
+    const aiTypes=inferDemoAiTypes(item.file.name,item.types);
+    const status=typesMatch(item.types,aiTypes)?'待確認':'類型不一致';
+    dataParsedSources.unshift({name:item.file.name,userTypes:[...item.types],aiTypes,status,time:'剛剛',summary:`AI 已解析檔案，請確認資料類型是否正確。`,fields:[`檔案大小：${fileSizeLabel(item.file.size)}`,`上傳時設定：${item.types.join('、')}`,`AI 分析：${aiTypes.join('、')}`,'待使用者確認後更新至 E2B 企業認知']});
+  });
+  dataUploadFiles=[];
+  renderData();
+  if(typeof toast==='function') toast(`已開始解析 ${uploadCount} 個檔案：${summary}`);
 }
 
 
