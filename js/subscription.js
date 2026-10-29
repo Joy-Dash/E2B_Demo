@@ -494,6 +494,7 @@
     ]
   }
 ];
+  window.e2bPlans=plans;
   const key='e2b.subscription.demo.v1';
   let state={plan:1,start:'2026-09-01',end:'2027-08-31'};
   try { const saved=JSON.parse(localStorage.getItem(key)); if(saved && Number.isInteger(saved.plan) && plans[saved.plan]) state.plan=saved.plan; } catch {}
@@ -503,6 +504,15 @@
   if(!history.length&&!legacyHistory)history=[{type:'subscribe',plan:1,from:null,at:'2026-09-01T00:00:00+08:00'}];
   let historyIncomplete=legacyHistory;
   try{historyIncomplete=historyIncomplete||JSON.parse(localStorage.getItem(key))?.historyIncomplete===true;}catch{}
+  window.e2bActivateSubscription=index=>{
+    if(!plans[index])return;
+    const now=new Date(), end=new Date(now);
+    end.setMonth(end.getMonth()+1);
+    const date=d=>d.toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+    state={plan:index,start:date(now),end:date(end)};
+    history=[{type:'subscribe',plan:index,from:null,at:now.toISOString()}];historyIncomplete=false;
+    renderSummary();
+  };
   const money=n=>'NT$ '+n.toLocaleString('en-US');
   const profile=document.getElementById('accountProfile');
   const footer=document.createElement('div');footer.className='subscription-footer';
@@ -544,12 +554,12 @@
     const content=document.createElement('div');content.id='subscriptionPanel';content.setAttribute('role','tabpanel');content.setAttribute('aria-labelledby','subscriptionTab-'+active);
     Array.from(modal.children).filter(el=>!el.classList.contains('subscription-close')).forEach(el=>content.append(el));
     const head=document.createElement('div');head.className='subscription-management-head';
-    head.innerHTML='<h2 id="subscriptionManagementTitle">訂閱管理</h2><div class="subscription-tabs" role="tablist" aria-label="訂閱管理">'+[['overview','訂閱總覽'],['plans','訂閱方案']].map(([id,label])=>`<button type="button" role="tab" id="subscriptionTab-${id}" aria-controls="subscriptionPanel" aria-selected="${active===id}" tabindex="${active===id?0:-1}" data-subscription-tab="${id}">${label}</button>`).join('')+'</div>';
+    head.innerHTML='<h2 id="subscriptionManagementTitle">訂閱管理</h2><div class="subscription-tabs" role="tablist" aria-label="訂閱管理">'+[['overview','訂閱總覽'],['plans','訂閱方案'],['addons','加購點數／次數']].map(([id,label])=>`<button type="button" role="tab" id="subscriptionTab-${id}" aria-controls="subscriptionPanel" aria-selected="${active===id}" tabindex="${active===id?0:-1}" data-subscription-tab="${id}">${label}</button>`).join('')+'</div>';
     modal.append(head,content);modal.setAttribute('aria-labelledby','subscriptionManagementTitle');
     head.querySelectorAll('[role=tab]').forEach(button=>{
-      const select=id=>{id==='plans'?renderPlans():renderOverview();modal.querySelector('#subscriptionTab-'+id).focus();modal.scrollTop=0;};
+      const select=id=>{id==='plans'?renderPlans():id==='addons'?renderAddons():renderOverview();modal.querySelector('#subscriptionTab-'+id).focus();modal.scrollTop=0;};
       button.onclick=()=>select(button.dataset.subscriptionTab);
-      button.onkeydown=e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();select(e.key==='Home'?'overview':e.key==='End'?'plans':active==='plans'?'overview':'plans');}};
+      button.onkeydown=e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const ids=['overview','plans','addons'];select(e.key==='Home'?ids[0]:e.key==='End'?ids[2]:ids[(ids.indexOf(active)+(e.key==='ArrowRight'?1:2))%3]);}};
     });
   }
   function renderOverview(){
@@ -560,6 +570,8 @@
     const quotas=p.quotas;
     const overview=document.createElement('section');overview.className='subscription-overview';
     overview.innerHTML=`<div class="subscription-overview-title"><div><span class="subscription-eyebrow">目前企業方案</span><h3>${p.name}</h3><p>${p.tag}</p></div><button type="button" class="btn primary" id="subscriptionUpgrade">${state.plan===plans.length-1?'查看訂閱方案':'升級方案'} <span aria-hidden="true">↗</span></button></div><dl class="subscription-overview-dates"><div><dt>訂閱開始時間</dt><dd>${state.start.replaceAll('-','/')}</dd></div><div><dt>訂閱結束時間</dt><dd>${state.end.replaceAll('-','/')}</dd></div><div><dt>方案月費（未稅）</dt><dd>${money(p.price)}<small>含稅 ${money(p.price*1.05)} / 月</small></dd></div></dl><div class="subscription-overview-features"><section><h4>方案包含功能</h4><p class="subscription-source-note">依 2026/10/01 方案 PDF 勾選列示；待討論／尚未規劃項目仍保留註記</p><ul>${p.groups.map(g=>`<li class="subscription-feature-group"><h5>${g.module}</h5><ul>${g.features.map(f=>`<li>${f}</li>`).join('')}</ul></li>`).join('')}</ul></section><section><h4>帳號與資源額度</h4><ul>${quotas.map(f=>`<li>${f}</li>`).join('')}</ul></section></div>`;
+    overview.querySelector('.subscription-overview-dates').insertAdjacentHTML('afterend',window.e2bUsageOverviewMarkup());
+    overview.querySelectorAll('[data-overview-addon]').forEach(button=>button.onclick=()=>window.e2bOpenAddons(button.dataset.overviewAddon));
     root.prepend(overview);
     modal.querySelector('#subscriptionUpgrade').onclick=()=>{renderPlans();modal.querySelector('#subscriptionTab-plans').focus();modal.scrollTop=0;};
     managementTabs('overview');
@@ -573,6 +585,17 @@
     modal.querySelectorAll('[data-upgrade]:not(:disabled)').forEach(b=>b.onclick=()=>renderConfirm(Number(b.dataset.upgrade)));
     managementTabs('plans');
   }
+
+  function renderAddons(kind='token'){
+    shell(window.e2bAddonMarkup(kind));
+    managementTabs('addons');
+    window.e2bBindAddons(modal);
+  }
+  window.e2bOpenAddons=(kind='token')=>{
+    closeUsage();menu.classList.remove('show');renderAddons(kind);
+    if(!modal.open)modal.showModal();modal.scrollTop=0;
+    modal.querySelector('[data-addon="'+kind+'"]').focus();
+  };
   function renderConfirm(index){
     if(index<=state.plan || !plans[index])return;
     const p=plans[index];
